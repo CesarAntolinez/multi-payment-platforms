@@ -15,7 +15,18 @@ class CreatePaymentLinksTable extends Migration
     {
         Schema::create('payment_links', function (Blueprint $table) {
             $table->id();
+            $table->string('gateway');
+            $table->string('gateway_link_id')->unique();
+            $table->decimal('amount', 10, 2);
+            $table->string('currency', 3)->default('USD');
+            $table->string('description');
+            $table->string('url');
+            $table->enum('status', ['active', 'expired', 'completed'])->default('active');
+            $table->timestamp('expires_at')->nullable();
+            $table->json('metadata')->nullable();
             $table->timestamps();
+
+            $table->index(['gateway', 'status']);
         });
     }
 

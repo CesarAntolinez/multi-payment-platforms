@@ -15,7 +15,16 @@ class CreatePaymentCustomersTable extends Migration
     {
         Schema::create('payment_customers', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->string('gateway'); // stripe, paypal, mercadopago
+            $table->string('gateway_customer_id')->unique();
+            $table->string('email');
+            $table->string('name');
+            $table->json('metadata')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->index(['user_id', 'gateway']);
         });
     }
 
