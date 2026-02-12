@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WebhookController;
 use App\Http\Livewire\CreateCustomer;
 use App\Http\Livewire\CreatePaymentLink;
 use App\Http\Livewire\CreatePlan;
@@ -22,6 +23,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Webhooks - Estas rutas NO deben tener protección CSRF
+Route::post('/webhooks/stripe', [WebhookController::class, 'handleStripe'])->name('webhooks.stripe');
+Route::post('/webhooks/paypal', [WebhookController::class, 'handlePayPal'])->name('webhooks.paypal');
+
+// Rutas protegidas por autenticación
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
