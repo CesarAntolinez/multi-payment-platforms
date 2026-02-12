@@ -16,12 +16,13 @@
     <form wire:submit.prevent="createCustomer">
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">
-                Pasarela de Pago
+                Pasarela de Pago *
             </label>
             <select wire:model="gateway" class="shadow border rounded w-full py-2 px-3 text-gray-700">
                 <option value="stripe">Stripe</option>
-                <!-- Agregar más pasarelas aquí -->
+                <option value="paypal">PayPal</option> <!-- ✨ PayPal agregado -->
             </select>
+            <p class="text-xs text-gray-500 mt-1">Selecciona la pasarela de pago a utilizar</p>
         </div>
 
         <div class="mb-4">

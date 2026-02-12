@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Services\PaymentGateways\PayPalGateway;
 use App\Services\PaymentGateways\StripeGateway;
 use InvalidArgumentException;
 
@@ -19,8 +20,7 @@ class PaymentGatewayManager
     public function __construct()
     {
         $this->registerGateway('stripe', new StripeGateway());
-        // Aquí puedes agregar más pasarelas:
-        // $this->registerGateway('paypal', new PayPalGateway());
+        $this->registerGateway('paypal', new PayPalGateway());
         // $this->registerGateway('mercadopago', new MercadoPagoGateway());
     }
 
