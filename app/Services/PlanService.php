@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Models\PaymentPlan;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PlanService
 {
     protected PaymentGatewayManager $gatewayManager;
+    protected int $cacheTime = 3600; // 1 hora
 
     public function __construct(PaymentGatewayManager $gatewayManager)
     {
@@ -20,18 +22,15 @@ class PlanService
      */
     public function createPlan(string $gateway, array $planData): PaymentPlan
     {
-        return DB::transaction(function () use ($gateway, $planData) {
-            // Validar datos requeridos
+        $plan = DB::transaction(function () use ($gateway, $planData) {
             $this->validatePlanData($planData);
 
-            // Crear plan en la pasarela
             $result = $this->gatewayManager->gateway($gateway)->createPlan($planData);
 
             if (!$result['success']) {
                 throw new Exception("Error al crear plan: " . $result['error']);
             }
 
-            // Guardar en la base de datos
             return PaymentPlan::create([
                 'gateway' => $gateway,
                 'gateway_plan_id' => $result['gateway_plan_id'],
@@ -44,6 +43,11 @@ class PlanService
                 'metadata' => $planData['metadata'] ?? [],
             ]);
         });
+
+        // Limpiar caché de planes
+        $this->clearPlansCache($gateway);
+
+        return $plan;
     }
 
     /**
@@ -51,8 +55,7 @@ class PlanService
      */
     public function updatePlan(PaymentPlan $plan, array $updateData): PaymentPlan
     {
-        return DB::transaction(function () use ($plan, $updateData) {
-            // Actualizar en la pasarela
+        $updatedPlan = DB::transaction(function () use ($plan, $updateData) {
             $result = $this->gatewayManager
                 ->gateway($plan->gateway)
                 ->updatePlan($plan->gateway_plan_id, $updateData);
@@ -61,7 +64,6 @@ class PlanService
                 throw new Exception("Error al actualizar plan: " . $result['error']);
             }
 
-            // Actualizar en la base de datos
             $plan->update([
                 'name' => $updateData['name'] ?? $plan->name,
                 'active' => $updateData['active'] ?? $plan->active,
@@ -70,20 +72,40 @@ class PlanService
 
             return $plan->fresh();
         });
+
+        // Limpiar caché de planes
+        $this->clearPlansCache($plan->gateway);
+
+        return $updatedPlan;
     }
 
     /**
-     * Obtener planes activos por pasarela
+     * Obtener planes activos por pasarela (con caché)
      */
     public function getActivePlans(string $gateway = null)
     {
-        $query = PaymentPlan::active();
+        $cacheKey = $gateway ? "plans.active.{$gateway}" : "plans.active.all";
 
+        return Cache::remember($cacheKey, $this->cacheTime, function () use ($gateway) {
+            $query = PaymentPlan::active();
+
+            if ($gateway) {
+                $query->where('gateway', $gateway);
+            }
+
+            return $query->get();
+        });
+    }
+
+    /**
+     * Limpiar caché de planes
+     */
+    protected function clearPlansCache(?string $gateway = null): void
+    {
         if ($gateway) {
-            $query->where('gateway', $gateway);
+            Cache::forget("plans.active.{$gateway}");
         }
-
-        return $query->get();
+        Cache::forget("plans.active.all");
     }
 
     /**
