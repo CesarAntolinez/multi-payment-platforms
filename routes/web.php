@@ -22,8 +22,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
-Route::get('/plans/create', CreatePlan::class)->name('plans.create');
-Route::get('/subscriptions/create', CreateSubscription::class)->name('subscriptions.create');
-Route::get('/payment-links/create', CreatePaymentLink::class)->name('payment-links.create');
-Route::get('/cards', ManageCards::class)->name('cards.index');
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified'
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::get('/customers/create', CreateCustomer::class)->name('customers.create');
+    Route::get('/plans/create', CreatePlan::class)->name('plans.create');
+    Route::get('/subscriptions/create', CreateSubscription::class)->name('subscriptions.create');
+    Route::get('/payment-links/create', CreatePaymentLink::class)->name('payment-links.create');
+    Route::get('/cards', ManageCards::class)->name('cards.index');
+});
