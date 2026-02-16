@@ -17,6 +17,7 @@
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.0",
         "livewire/livewire": "^2.5",
+        "mercadopago/dx-php": "^2.5",
         "paypal/rest-api-sdk-php": "^1.6",
         "stripe/stripe-php": "^19.3"
     },

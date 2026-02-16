@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Services\PaymentGateways\MercadoPagoGateway;
 use App\Services\PaymentGateways\PayPalGateway;
 use App\Services\PaymentGateways\StripeGateway;
 use InvalidArgumentException;
@@ -21,7 +22,7 @@ class PaymentGatewayManager
     {
         $this->registerGateway('stripe', new StripeGateway());
         $this->registerGateway('paypal', new PayPalGateway());
-        // $this->registerGateway('mercadopago', new MercadoPagoGateway());
+        $this->registerGateway('mercadopago', new MercadoPagoGateway());
     }
 
     /**

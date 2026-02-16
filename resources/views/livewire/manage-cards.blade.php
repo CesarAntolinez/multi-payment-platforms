@@ -25,6 +25,8 @@
                     </label>
                     <select wire:model="gateway" class="shadow border rounded w-full py-2 px-3 text-gray-700">
                         <option value="stripe">Stripe</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="mercadopago">Mercado Pago</option>
                     </select>
                 </div>
 
