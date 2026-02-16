@@ -23,7 +23,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Webhooks - Estas rutas NO deben tener protección CSRF
+// Webhooks - These routes should NOT have CSRF protection
 Route::post('/webhooks/stripe', [WebhookController::class, 'handleStripe'])->name('webhooks.stripe');
 Route::post('/webhooks/paypal', [WebhookController::class, 'handlePayPal'])->name('webhooks.paypal');
 Route::post('/webhooks/mercadopago', [WebhookController::class, 'handleMercadoPago'])->name('webhooks.mercadopago');

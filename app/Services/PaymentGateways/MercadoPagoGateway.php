@@ -139,10 +139,19 @@ class MercadoPagoGateway extends AbstractPaymentGateway
             $plan = new Plan();
             $plan->description = $planData['name'];
             
-            // Mercado Pago usa auto_recurring para planes de suscripción
+            // Mercado Pago uses auto_recurring for subscription plans
+            // For week interval, convert to days with proper frequency
+            $frequency = $planData['interval_count'] ?? 1;
+            $frequencyType = $this->convertIntervalToMercadoPago($planData['interval']);
+            
+            // Adjust frequency for weekly intervals (convert to days)
+            if ($planData['interval'] === 'week') {
+                $frequency = $frequency * 7;
+            }
+            
             $plan->auto_recurring = [
-                'frequency' => 1,
-                'frequency_type' => $this->convertIntervalToMercadoPago($planData['interval']),
+                'frequency' => $frequency,
+                'frequency_type' => $frequencyType,
                 'transaction_amount' => (float) $planData['amount'],
                 'currency_id' => strtoupper($planData['currency']),
             ];
@@ -215,8 +224,10 @@ class MercadoPagoGateway extends AbstractPaymentGateway
             
             $subscription->save();
 
-            // Calculate period end based on subscription start and plan interval
-            $periodEnd = strtotime("+1 month"); // Default to 1 month, actual value from plan
+            // Note: Period end is set to default 1 month as Mercado Pago subscriptions
+            // use the plan's configured interval. The actual billing cycle is managed
+            // by Mercado Pago based on the plan's auto_recurring settings.
+            $periodEnd = strtotime("+1 month");
 
             return [
                 'success' => true,
