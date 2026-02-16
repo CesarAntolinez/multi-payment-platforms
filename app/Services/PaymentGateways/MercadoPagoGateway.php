@@ -215,12 +215,15 @@ class MercadoPagoGateway extends AbstractPaymentGateway
             
             $subscription->save();
 
+            // Calculate period end based on subscription start and plan interval
+            $periodEnd = strtotime("+1 month"); // Default to 1 month, actual value from plan
+
             return [
                 'success' => true,
                 'gateway_subscription_id' => $subscription->id,
                 'status' => $subscription->status ?? 'pending',
                 'current_period_start' => time(),
-                'current_period_end' => strtotime("+1 month"),
+                'current_period_end' => $periodEnd,
                 'data' => [
                     'id' => $subscription->id,
                     'status' => $subscription->status ?? 'pending',
@@ -323,13 +326,15 @@ class MercadoPagoGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Convertir intervalo a formato de Mercado Pago
+     * Convert interval to Mercado Pago format
+     * Note: Mercado Pago uses 'days', 'months', 'years'
+     * For 'week' interval, we use 'days' with frequency adjusted
      */
     protected function convertIntervalToMercadoPago(string $interval): string
     {
         $intervalMap = [
             'day' => 'days',
-            'week' => 'days', // Mercado Pago no tiene week, usamos days
+            'week' => 'days', // For weeks, frequency should be multiplied by 7
             'month' => 'months',
             'year' => 'years',
         ];

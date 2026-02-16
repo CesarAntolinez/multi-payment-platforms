@@ -16,7 +16,7 @@ class MercadoPagoGatewayTest extends TestCase
     {
         parent::setUp();
         
-        // Solo inicializar el gateway si hay credenciales configuradas
+        // Only initialize the gateway if credentials are configured
         if (config('services.mercadopago.access_token')) {
             $this->gateway = new MercadoPagoGateway();
         }
@@ -136,7 +136,7 @@ class MercadoPagoGatewayTest extends TestCase
             $this->markTestSkipped('Mercado Pago credentials not configured');
         }
 
-        // Intentar actualizar un cliente que no existe
+        // Attempt to update a non-existent customer
         $result = $this->gateway->updateCustomer('invalid_customer_id', [
             'name' => 'Test Name',
         ]);
