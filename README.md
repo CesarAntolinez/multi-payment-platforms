@@ -12,7 +12,7 @@ Este proyecto proporciona una **capa de abstracción unificada** para gestionar 
 
 ### ✨ Características Principales
 
-- ✅ **Multi-pasarela**: Soporte para Stripe, PayPal (extensible a más)
+- ✅ **Multi-pasarela**: Soporte para Stripe, PayPal, Mercado Pago (extensible a más)
 - 🎯 **Patrón Strategy**: Arquitectura desacoplada y extensible
 - 👥 **Gestión de Clientes**: Crear y actualizar clientes en cualquier pasarela
 - 💳 **Administración de Tarjetas**: Agregar, listar y gestionar métodos de pago
@@ -89,14 +89,14 @@ El proyecto implementa el **Patrón Strategy** para desacoplar la lógica de neg
 ┌────────────────────▼────────────────────────────────────┐
 │             PaymentGatewayManager                       │
 │              (Strategy Selector)                        │
-└─────┬──────────────────────────────┬───────────────────┘
-      │                              │
-┌─────▼─────────┐            ┌──────▼────────────┐
-│ StripeGateway │            │  PayPalGateway    │
-│ (Concrete)    │            │  (Concrete)       │
-└───────────────┘            └───────────────────┘
-      │                              │
-      └──────────────┬───────────────┘
+└─────┬──────────────────────┬─────────────┬─────────────┘
+      │                      │             │
+┌─────▼─────────┐    ┌───────▼──────┐  ┌──▼────────────┐
+│ StripeGateway │    │ PayPalGateway│  │MercadoPagoGate│
+│ (Concrete)    │    │ (Concrete)   │  │way (Concrete) │
+└───────────────┘    └──────────────┘  └───────────────┘
+      │                      │             │
+      └──────────────┬───────┴─────────────┘
                      │
            ┌─────────▼──────────┐
            │ PaymentGatewayInterface │
@@ -117,6 +117,7 @@ El proyecto implementa el **Patrón Strategy** para desacoplar la lógica de neg
 | **Testing** | PHPUnit | 9.3+ |
 | **Pasarelas** | Stripe PHP SDK | 19.3+ |
 | | PayPal SDK | 1.6+ |
+| | Mercado Pago SDK | 2.5+ |
 
 ## 📁 Estructura del Proyecto
 
@@ -202,7 +203,22 @@ PAYPAL_CLIENT_ID=xxxxxxxxxxxxx
 PAYPAL_SECRET=xxxxxxxxxxxxx
 ```
 
+### Mercado Pago (Opcional)
+
+```env
+MERCADOPAGO_PUBLIC_KEY=xxxxxxxxxxxxx
+MERCADOPAGO_ACCESS_TOKEN=xxxxxxxxxxxxx
+```
+
 > 📖 Configuración detallada en [02-INSTALACION.md](docs/02-INSTALACION.md)
+
+## 🌐 Pasarelas Soportadas
+
+| Pasarela | Estado | Documentación |
+|----------|--------|---------------|
+| **Stripe** | ✅ Completo | [Stripe API](https://stripe.com/docs/api) |
+| **PayPal** | ✅ Básico | [PayPal API](https://developer.paypal.com/docs/api/overview/) |
+| **Mercado Pago** | ✅ Completo | [Mercado Pago API](https://www.mercadopago.com.mx/developers/es/docs) |
 
 ## 🧪 Testing
 

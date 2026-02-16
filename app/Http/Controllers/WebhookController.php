@@ -202,4 +202,115 @@ class WebhookController extends Controller
                 Log::info('Evento PayPal no manejado', ['type' => $eventType]);
         }
     }
+
+    /**
+     * Manejar webhooks de Mercado Pago
+     */
+    public function handleMercadoPago(Request $request)
+    {
+        $payload = $request->all();
+
+        // Guardar el webhook
+        $webhook = PaymentWebhook::create([
+            'gateway' => 'mercadopago',
+            'event_type' => $payload['type'] ?? 'unknown',
+            'event_id' => $payload['id'] ?? uniqid('mercadopago_'),
+            'payload' => $payload,
+        ]);
+
+        try {
+            // Procesar eventos de Mercado Pago
+            $this->processMercadoPagoEvent($payload);
+            $webhook->markAsProcessed();
+        } catch (\Exception $e) {
+            Log::error('Error procesando webhook Mercado Pago', [
+                'error' => $e->getMessage(),
+            ]);
+            $webhook->markAsError($e->getMessage());
+        }
+
+        return response()->json(['status' => 'success'], 200);
+    }
+
+    /**
+     * Procesar eventos de Mercado Pago
+     */
+    protected function processMercadoPagoEvent($payload)
+    {
+        $eventType = $payload['type'] ?? '';
+
+        switch ($eventType) {
+            case 'payment':
+                $this->handleMercadoPagoPayment($payload);
+                break;
+
+            case 'subscription_preapproval':
+            case 'subscription_authorized_payment':
+                $this->handleMercadoPagoSubscription($payload);
+                break;
+
+            case 'preapproval':
+                $this->handleMercadoPagoPreapproval($payload);
+                break;
+
+            default:
+                Log::info('Evento Mercado Pago no manejado', ['type' => $eventType]);
+        }
+    }
+
+    /**
+     * Manejar pago de Mercado Pago
+     */
+    protected function handleMercadoPagoPayment($payload)
+    {
+        $action = $payload['action'] ?? '';
+        
+        switch ($action) {
+            case 'payment.created':
+            case 'payment.updated':
+                Log::info('Pago Mercado Pago actualizado', [
+                    'payment_id' => $payload['data']['id'] ?? null,
+                    'action' => $action,
+                ]);
+                break;
+
+            default:
+                Log::info('Acción de pago Mercado Pago no manejada', ['action' => $action]);
+        }
+    }
+
+    /**
+     * Manejar suscripción de Mercado Pago
+     */
+    protected function handleMercadoPagoSubscription($payload)
+    {
+        $subscriptionId = $payload['data']['id'] ?? null;
+
+        if ($subscriptionId) {
+            $subscription = PaymentSubscription::where('gateway_subscription_id', $subscriptionId)
+                ->first();
+
+            if ($subscription) {
+                Log::info('Suscripción Mercado Pago actualizada', [
+                    'subscription_id' => $subscription->id,
+                    'gateway_subscription_id' => $subscriptionId,
+                ]);
+            }
+        }
+
+        Log::info('Evento de suscripción Mercado Pago', [
+            'type' => $payload['type'] ?? 'unknown',
+            'subscription_id' => $subscriptionId,
+        ]);
+    }
+
+    /**
+     * Manejar preapproval de Mercado Pago
+     */
+    protected function handleMercadoPagoPreapproval($payload)
+    {
+        Log::info('Preapproval Mercado Pago', [
+            'payload' => $payload,
+        ]);
+    }
 }
