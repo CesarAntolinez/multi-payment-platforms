@@ -20,3 +20,6 @@ yarn-error.log
 /.idea/phpunit.xml
 /.idea/vcs.xml
 /.idea/.gitignore
+
+ngrok.exe
+.ngrok.exe.old
