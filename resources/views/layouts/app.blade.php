@@ -14,8 +14,9 @@
         @livewireStyles
 
         <!-- Scripts -->
-        <link href="{{ asset('build/assets/app-BF9iHclu.css') }}" rel="stylesheet">
-        <script src="{{ asset('build/assets/app-BF9iHclu.js') }}" defer></script>
+        <link href="{{ asset('build/assets/app-wttVPNGZ.css') }}" rel="stylesheet">
+        <script src="{{ asset('build/assets/app-Dh4hFPbS.js') }}" defer></script>
+
     </head>
     <body class="font-sans antialiased">
         <x-jet-banner />
