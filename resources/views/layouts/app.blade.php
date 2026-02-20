@@ -14,9 +14,7 @@
         @livewireStyles
 
         <!-- Scripts -->
-        <link href="{{ asset('build/assets/app-wttVPNGZ.css') }}" rel="stylesheet">
-        <script src="{{ asset('build/assets/app-Dh4hFPbS.js') }}" defer></script>
-
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
         <x-jet-banner />
